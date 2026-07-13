@@ -1,46 +1,89 @@
-# CodingSchool — Learn with AI, not From AI
+# CodingSchool
 
-CodingSchool adalah plugin OpenCode yang berfungsi sebagai mentor pembelajaran software engineering.
+**Learn Software Engineering with AI, not From AI.**
+
+CodingSchool adalah plugin OpenCode yang berfungsi sebagai mentor pembelajaran software engineering. Fokus pada pengembangan pemahaman konsep, bukan sekadar generasi kode otomatis.
 
 ## Instalasi
 
-1. Clone atau copy folder ini ke project kamu
-2. Tambahkan ke `opencode.json`:
+### Dari npm (recommended)
+
+```bash
+# Install plugin
+npm install @codingskuy/coding-school
+
+# Atau via bun
+bun add @codingskuy/coding-school
+```
+
+Lalu tambahkan ke `opencode.json`:
 
 ```jsonc
 {
   "agent": {
     "coding-school": {
       "description": "Mentor pembelajaran software engineering",
-      "prompt": "Kamu adalah mentor CodingSchool. Tanyakan pilihan A/B sebelum memulai.",
+      "prompt": "Kamu adalah mentor CodingSchool. Tugasmu adalah mengajar user untuk memahami konsep, bukan hanya memberikan jawaban. Selalu tawarkan pilihan A (selesaikan pekerjaan) atau B (belajar) sebelum memulai sesi belajar.",
       "tools": { "write": false, "edit": false }
     }
   },
-  "plugins": [
-    "./path/to/coding-school-plugin"
-  ]
+  "plugin": ["@codingskuy/coding-school"]
+}
+```
+
+### Dari local folder
+
+```jsonc
+{
+  "agent": {
+    "coding-school": { /* ... */ }
+  },
+  "plugin": ["./path/to/coding-school-plugin"]
 }
 ```
 
 ## Tools
 
-| Tool | Fungsi |
-|------|--------|
-| `cs_coach_dialog` | Mulai dialog dengan coach |
-| `cs_create_roadmap` | Buat learning plan |
-| `cs_update_progress` | Update progress belajar |
-| `cs_assess_quiz` | Penilaian rubrik |
-| `cs_resume_session` | Resume sesi belajar |
+Plugin menyediakan 5 tools yang bisa dipanggil oleh agent Coach:
+
+| Tool | Fungsi | Arguments |
+|------|--------|-----------|
+| `cs_coach_dialog` | Mulai dialog dengan coach | message, choice (optional) |
+| `cs_create_roadmap` | Buat learning contract `.md` di `.codingschool/roadmap/` | topic, level |
+| `cs_update_progress` | Update progress + XP + level | topic, item, status |
+| `cs_assess_quiz` | Beri penilaian rubrik berdasarkan analisis jawaban | answers, topic, stage |
+| `cs_resume_session` | Load checkpoint sesi sebelumnya | date (optional) |
 
 ## Struktur Data
 
 ```
 .codingschool/
-├── profile.md
-├── progress.json
+├── profile.md              # Profil & goal user
+├── progress.json           # Progress per topik + global + XP
 ├── roadmap/
+│   ├── dart/
+│   │   ├── beginner.md
+│   │   ├── intermediate.md
+│   │   └── expert.md
+│   ├── rust/
+│   └── flutter/
 ├── sessions/
+│   ├── 2026-07-13.md
+│   └── 2026-07-14.md
 ├── quizzes/
 ├── reports/
 └── certificates/
 ```
+
+## Development
+
+```bash
+bun install          # Install dependencies
+bun run typecheck    # TypeScript check
+bun run build        # Build ke dist/
+bun run build:quick  # Build tanpa deklarasi (lebih cepat)
+```
+
+## Lisensi
+
+MIT — lihat [LICENSE.md](LICENSE.md)

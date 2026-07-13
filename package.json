@@ -1,30 +1,56 @@
 {
   "name": "@codingskuy/coding-school",
-  "version": "0.1.0",
-  "description": "CodingSchool — Learn Software Engineering with AI, not From AI",
+  "version": "0.2.0",
+  "description": "CodingSchool — Learn Software Engineering with AI, not From AI. OpenCode plugin mentor.",
   "type": "module",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "bun build src/index.ts --outdir dist --external @opencode-ai/plugin",
+    "build": "bun build src/index.ts --outdir dist --external @opencode-ai/plugin && tsc --emitDeclarationOnly --outDir dist",
+    "build:quick": "bun build src/index.ts --outdir dist --external @opencode-ai/plugin",
     "typecheck": "tsc --noEmit",
+    "prepublishOnly": "bun run build",
     "clean": "rm -rf dist"
   },
   "dependencies": {
     "@opencode-ai/plugin": "^1.0.0",
-    "zod": "^3.22.0",
-    "fs-extra": "^11.0.0",
-    "date-fns": "^3.0.0"
+    "date-fns": "^3.0.0",
+    "zod": "^3.22.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
     "@types/node": "^20.0.0",
-    "@types/fs-extra": "^11.0.0"
+    "typescript": "^5.0.0"
   },
   "keywords": [
     "opencode",
     "plugin",
     "coding-school",
     "mentor",
-    "learning"
-  ]
+    "learning",
+    "tutorial"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codingskuy/coding-school.git"
+  },
+  "homepage": "https://github.com/codingskuy/coding-school#readme",
+  "bugs": {
+    "url": "https://github.com/codingskuy/coding-school/issues"
+  }
 }
