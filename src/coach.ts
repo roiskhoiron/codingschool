@@ -1,7 +1,7 @@
 import type { CoachIntent, CoachChoice, ProgressData } from "./utils/types"
-import { detectIntent, choicePrompt, prerequisiteGateMessage, bloomStagePrompt } from "./utils/templates"
-import { readProfile, getLatestSessionDate, isProfileExists } from "./utils/paths"
-import { isFileExists, readJson } from "./utils/fs"
+import { prerequisiteGateMessage, bloomStagePrompt } from "./utils/templates"
+import { getLatestSessionDate, isProfileExists } from "./utils/paths"
+import { readJson } from "./utils/fs"
 import { join } from "path"
 
 export interface CoachContext {
@@ -22,21 +22,20 @@ export function handleGreeting(ctx: CoachContext): CoachResponse {
   if (!isProfileExists(ctx.projectDir)) {
     return { message: "", intent: "greeting" }
   }
-  const profile = readProfile(ctx.projectDir)
   const latestSession = getLatestSessionDate(ctx.projectDir)
   if (latestSession) {
     return {
-      message: `Halo! Senang bertemu lagi.\n\nTerakhir kamu belajar di sesi ${latestSession}.\nIngin melanjutkan atau mulai topik baru?`,
+      message: `Welcome back! Your last session was on ${latestSession}.\nWould you like to continue or start a new topic?`,
       intent: "greeting",
     }
   }
   return {
-    message: `Halo! Terakhir kita belajar bersama.\nAda yang ingin kamu tanyakan atau pelajari hari ini?`,
+    message: `Good to see you again!\nAnything you'd like to learn or ask today?`,
     intent: "greeting",
   }
 }
 
-export function handleLearnTopic(ctx: CoachContext, topic: string): CoachResponse {
+export function handleLearnTopic(topic: string): CoachResponse {
   return {
     message: contextEstimation(topic),
     shouldPromptChoice: true,
@@ -45,12 +44,12 @@ export function handleLearnTopic(ctx: CoachContext, topic: string): CoachRespons
 }
 
 export function handleQuestionRoadmap(
-  ctx: CoachContext,
+  projectDir: string,
   topic: string,
   askedItem: string,
 ): CoachResponse {
   const progress = readJson<ProgressData>(
-    progressPath(ctx.projectDir),
+    progressPath(projectDir),
     { topics: {}, global: { softwareEngineering: 0, knowledge: 0, practice: 0, architecture: 0 }, xp: 0, level: 1 },
   )
 
@@ -62,27 +61,27 @@ export function handleQuestionRoadmap(
     const plan = progress.topics[activeTopic]
     if (!plan.practice.includes(askedItem) && !plan.theory.includes(askedItem)) {
       return {
-        message: `Saya lihat di learning plan kamu, saat ini sedang fokus di **${activeTopic}**.\n\n"${askedItem}" tidak ada dalam roadmap aktifmu. Sesuai rencana, langkah selanjutnya adalah:\n- ${plan.theory.filter(t => !plan.theory.includes(t)).join("\n- ")}\n\nTetap fokus pada rencana yang sudah dibuat ya.`,
+        message: `I see you're currently focused on **${activeTopic}**.\n\n"${askedItem}" is not in your active roadmap. Your next planned steps are:\n- ${plan.theory.filter(t => !plan.theory.includes(t)).join("\n- ")}\n\nStay focused on the current plan.`,
         intent: "question-roadmap",
       }
     }
     return {
-      message: `Ya, "${askedItem}" ada di roadmap **${activeTopic}** kamu. Silakan kerjakan sesuai plan. Setelah selesai, beri tahu saya untuk review.`,
+      message: `Yes, "${askedItem}" is in your **${activeTopic}** roadmap. Go ahead and work on it. Let me know when you're done so I can review.`,
       intent: "question-roadmap",
     }
   }
 
   return {
-    message: `Kamu belum memiliki roadmap aktif. Ingin saya buatkan learning plan untukmu?`,
+    message: `You don't have an active roadmap yet. Would you like me to create a learning plan for you?`,
     intent: "question-roadmap",
   }
 }
 
 export function handlePrerequisiteQuestion(
-  ctx: CoachContext,
+  projectDir: string,
   askedTopic: string,
 ): CoachResponse {
-  const missing = findMissingPrerequisite(ctx, askedTopic)
+  const missing = findMissingPrerequisite(projectDir, askedTopic)
   if (missing) {
     return {
       message: prerequisiteGateMessage(askedTopic, missing),
@@ -90,28 +89,28 @@ export function handlePrerequisiteQuestion(
     }
   }
   return {
-    message: `Bagus! Sepertinya kamu sudah siap belajar ${askedTopic}.\n\n${bloomStagePrompt("remember", askedTopic)}`,
+    message: `Great! You seem ready to learn ${askedTopic}.\n\n${bloomStagePrompt("remember", askedTopic)}`,
     intent: "question-prerequisite",
   }
 }
 
-export function handleAchievement(ctx: CoachContext, topic: string): CoachResponse {
+export function handleAchievement(topic: string): CoachResponse {
   return {
-    message: `Selamat! Pemahaman yang baik.\n\nSaya akan catat progres kamu. Lanjut ke tantangan berikutnya atau review dulu?`,
+    message: `Well done! That's solid understanding.\n\nI'll log your progress. Ready for the next challenge or want to review first?`,
     intent: "achievement",
   }
 }
 
-export function handleResume(ctx: CoachContext): CoachResponse {
-  const latestDate = getLatestSessionDate(ctx.projectDir)
+export function handleResume(projectDir: string): CoachResponse {
+  const latestDate = getLatestSessionDate(projectDir)
   if (!latestDate) {
     return {
-      message: `Tidak ada sesi sebelumnya. Mulai belajar baru? Ceritakan topik yang ingin kamu pelajari.`,
+      message: `No previous sessions found. Start a new learning journey? Tell me a topic you'd like to study.`,
       intent: "resume",
     }
   }
   return {
-    message: `Checkpoint terakhir: sesi **${latestDate}**.`,
+    message: `Last checkpoint: session **${latestDate}**.`,
     intent: "resume",
   }
 }
@@ -119,35 +118,35 @@ export function handleResume(ctx: CoachContext): CoachResponse {
 export function processCoachingChoice(choice: CoachChoice): CoachResponse {
   if (choice === "A") {
     return {
-      message: "Baik, saya akan bantu selesaikan pekerjaan kamu. Ceritakan apa yang perlu dikerjakan.",
+      message: "Alright, I'll help you get the task done. Tell me what needs to be done.",
       intent: "complete-task",
     }
   }
   return {
-    message: "Baik! Mari kita mulai perjalanan belajar. Topik apa yang ingin kamu pelajari?",
+    message: "Great! Let's start your learning journey. What topic would you like to study?",
     intent: "learn-topic",
   }
 }
 
 function contextEstimation(topic: string): string {
-  return `Saya akan menjadi mentor Anda.
+  return `I will be your mentor.
 
-Topik:
+Topic:
 ✔ ${topic}
 
-Estimasi kebutuhan konteks:
+Estimated context needed:
 
   Beginner    ≈ 25k context
   Intermediate ≈ 80k context
   Expert      ≈ 250k context
 
-Pilih level untuk memulai.`
+Pick a level to start.`
 }
 
 function progressPath(projectDir: string): string {
   return join(projectDir, ".codingschool", "progress.json")
 }
 
-function findMissingPrerequisite(ctx: CoachContext, topic: string): string | null {
+function findMissingPrerequisite(projectDir: string, topic: string): string | null {
   return null
 }

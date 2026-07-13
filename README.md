@@ -2,28 +2,28 @@
 
 **Learn Software Engineering with AI, not From AI.**
 
-CodingSchool adalah plugin OpenCode yang berfungsi sebagai mentor pembelajaran software engineering. Fokus pada pengembangan pemahaman konsep, bukan sekadar generasi kode otomatis.
+CodingSchool is an OpenCode plugin that acts as a software engineering learning mentor. It focuses on developing conceptual understanding, not just automatic code generation.
 
-## Instalasi
+## Installation
 
-### Dari npm (recommended)
+### From npm (recommended)
 
 ```bash
 # Install plugin
 npm install @codingskuy/coding-school
 
-# Atau via bun
+# Or via bun
 bun add @codingskuy/coding-school
 ```
 
-Lalu tambahkan ke `opencode.json`:
+Then add to `opencode.json`:
 
 ```jsonc
 {
   "agent": {
     "coding-school": {
-      "description": "Mentor pembelajaran software engineering",
-      "prompt": "Kamu adalah mentor CodingSchool. Tugasmu adalah mengajar user untuk memahami konsep, bukan hanya memberikan jawaban. Selalu tawarkan pilihan A (selesaikan pekerjaan) atau B (belajar) sebelum memulai sesi belajar.",
+      "description": "Software engineering learning mentor",
+      "prompt": "You are the CodingSchool mentor. Your job is to teach the user to understand concepts, not just give answers. Always offer choice A (complete the task) or B (learn) before starting a learning session.",
       "tools": { "write": false, "edit": false }
     }
   },
@@ -31,7 +31,7 @@ Lalu tambahkan ke `opencode.json`:
 }
 ```
 
-### Dari local folder
+### From local folder
 
 ```jsonc
 {
@@ -44,22 +44,22 @@ Lalu tambahkan ke `opencode.json`:
 
 ## Tools
 
-Plugin menyediakan 5 tools yang bisa dipanggil oleh agent Coach:
+The plugin provides 5 tools that the Coach agent can call:
 
-| Tool | Fungsi | Arguments |
-|------|--------|-----------|
-| `cs_coach_dialog` | Mulai dialog dengan coach | message, choice (optional) |
-| `cs_create_roadmap` | Buat learning contract `.md` di `.codingschool/roadmap/` | topic, level |
+| Tool | Function | Arguments |
+|------|----------|-----------|
+| `cs_coach_dialog` | Start dialog with the coach | message, choice (optional) |
+| `cs_create_roadmap` | Create a learning contract `.md` in `.codingschool/roadmap/` | topic, level |
 | `cs_update_progress` | Update progress + XP + level | topic, item, status |
-| `cs_assess_quiz` | Beri penilaian rubrik berdasarkan analisis jawaban | answers, topic, stage |
-| `cs_resume_session` | Load checkpoint sesi sebelumnya | date (optional) |
+| `cs_assess_quiz` | Provide a rubric assessment based on answer analysis | answers, topic, stage |
+| `cs_resume_session` | Load the previous session checkpoint | date (optional) |
 
-## Struktur Data
+## Data Structure
 
 ```
 .codingschool/
-├── profile.md              # Profil & goal user
-├── progress.json           # Progress per topik + global + XP
+├── profile.md              # User profile & goals
+├── progress.json           # Per-topic progress + global + XP
 ├── roadmap/
 │   ├── dart/
 │   │   ├── beginner.md
@@ -80,10 +80,10 @@ Plugin menyediakan 5 tools yang bisa dipanggil oleh agent Coach:
 ```bash
 bun install          # Install dependencies
 bun run typecheck    # TypeScript check
-bun run build        # Build ke dist/
-bun run build:quick  # Build tanpa deklarasi (lebih cepat)
+bun run build        # Build to dist/
+bun run build:quick  # Build without declarations (faster)
 ```
 
-## Lisensi
+## License
 
-MIT — lihat [LICENSE.md](LICENSE.md)
+MIT — see [LICENSE.md](LICENSE.md)

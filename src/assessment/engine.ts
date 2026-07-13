@@ -10,10 +10,10 @@ function analyzeResponse(response: string): { depth: number; coverage: number; c
   const lower = response.toLowerCase()
 
   const hasTechnicalTerms = /\b(interface|implementation|abstraction|polymorphism|inheritance|encapsulation|composition|recursion|iteration|synchronous|asynchronous|concurrent|parallel)\b/.test(lower)
-  const hasComparisons = /\b(lebih\s+dari|kurang\s+dari|banding|perbedaan|kelebihan|kekurangan|instead|rather\s+than|compared|vs|versus)\b/.test(lower)
-  const hasStructure = /^(\d+\.|[-*]|pertama|kedua|ketiga)/m.test(response)
+  const hasComparisons = /\b(instead|rather\s+than|compared|vs|versus|whereas|while|advantage|disadvantage|pro|con|benefit|drawback|trade-off)\b/.test(lower)
+  const hasStructure = /^(\d+\.|[-*]|first|second|third)\b/m.test(lower)
   const hasCode = /`[^`]+`/.test(response) || /\b(function|class|const|let|var|import|export)\b/.test(lower)
-  const hasExample = /\b(contoh|misalnya|seperti|example|e\.g\.|for\s+instance)\b/.test(lower)
+  const hasExample = /\b(example|e\.g\.|for\s+instance|like|such\s+as|for\s+example)\b/.test(lower)
 
   const wordCount = response.split(/\s+/).length
   const depth = wordCount > 100 ? 85 : wordCount > 50 ? 70 : wordCount > 20 ? 55 : 40
@@ -55,7 +55,7 @@ export function assessQuiz(options: AssessOptions): AssessmentRubric {
 }
 
 export function renderAssessment(rubric: AssessmentRubric): string {
-  return `=== Penilaian ===
+  return `=== Assessment ===
 
 Theory:         ${renderBar(rubric.theory)} ${rubric.theory}/100
 Logic:          ${renderBar(rubric.logic)} ${rubric.logic}/100
@@ -65,7 +65,7 @@ Best Practice:  ${renderBar(rubric.bestPractice)} ${rubric.bestPractice}/100
 
 Total: ${rubric.total}/100
 
-Kesalahan terbesar:
+Biggest weakness:
 ${rubric.weakness}
 
 ${rubric.feedback}
@@ -83,39 +83,39 @@ function clamp(value: number, min = 0, max = 100): number {
 
 function identifyWeakness(analysis: { depth: number; coverage: number; clarity: number; example: boolean }, topic: string): string {
   if (!analysis.example) {
-    return `Belum ada contoh kode atau implementasi ${topic}. Coba sertakan potongan kode untuk memperkuat argumen.`
+    return `No code examples or implementation of ${topic}. Try including code snippets to strengthen your argument.`
   }
   if (analysis.coverage < 70) {
-    return `Kurang istilah teknis dan perbandingan. Gunakan kosakata yang lebih spesifik tentang ${topic}.`
+    return `Lacks technical terms and comparisons. Use more specific vocabulary about ${topic}.`
   }
   if (analysis.clarity < 70) {
-    return `Struktur jawaban kurang rapi. Gunakan poin-poin atau paragraf terpisah agar lebih mudah diikuti.`
+    return `Response structure could be clearer. Use bullet points or separate paragraphs.`
   }
   if (analysis.depth < 60) {
-    return `Jawaban masih terlalu dangkal. Coba elaborasi lebih dalam tentang ${topic}.`
+    return `Answer is too shallow. Elaborate more deeply on ${topic}.`
   }
-  return `Pemahaman sudah cukup baik. Untuk naik level, latih konsistensi best practice ${topic}.`
+  return `Good understanding overall. To level up, practice consistent best practices for ${topic}.`
 }
 
 function generateFeedback(topic: string, stage: BloomStage, analysis: { depth: number; coverage: number; clarity: number; example: boolean }): string {
   switch (stage) {
     case "remember":
-      return `Kamu sudah mulai mengenal ${topic}. Coba jelaskan dengan bahasa sendiri untuk memperkuat pemahaman.`
+      return `You're starting to learn about ${topic}. Try explaining in your own words to strengthen understanding.`
     case "understand":
       if (analysis.coverage < 70) {
-        return `Pemahaman masih perlu diperdalam. Coba baca ulang konsep ${topic} dan hubungkan dengan contoh nyata.`
+        return `Understanding needs more depth. Re-read ${topic} concepts and connect with real examples.`
       }
-      return `Pemahaman konsep ${topic} sudah cukup baik. Saatnya implementasi!`
+      return `Good conceptual understanding of ${topic}. Time to implement!`
     case "apply":
       if (!analysis.example) {
-        return `Teori sudah dikuasai, tapi belum ada implementasi. Coba tulis kode ${topic} dan jalankan.`
+        return `Theory seems solid, but no implementation yet. Write ${topic} code and run it.`
       }
-      return `Kode sudah berjalan. Sekarang analisis kelemahan dari pendekatan yang kamu gunakan.`
+      return `Code looks good. Now analyze the weaknesses in your approach.`
     case "analyze":
-      return `Analisis yang tajam! Bandingkan dengan pendekatan lain untuk memperluas wawasan.`
+      return `Sharp analysis! Compare with other approaches to broaden your perspective.`
     case "evaluate":
-      return `Evaluasi yang matang! Lanjut ke tahap akhir: bangun sesuatu yang utuh.`
+      return `Solid evaluation! Move to the final stage: build something complete.`
     case "create":
-      return `Selesai! Kamu telah melalui seluruh siklus Bloom untuk ${topic}. Luar biasa!`
+      return `Complete! You've gone through the full Bloom cycle for ${topic}. Outstanding!`
   }
 }

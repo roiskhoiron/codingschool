@@ -3,43 +3,43 @@ import type { CoachIntent, BloomStage } from "./types"
 export function detectIntent(message: string): CoachIntent {
   const lower = message.toLowerCase()
 
-  if (/^(hi|hello|hey|halo|hai|selamat pagi|siang|sore|malam)\b/.test(lower)) {
+  if (/^(hi|hello|hey)\b/.test(lower)) {
     return "greeting"
   }
 
-  if (/^(saya|aku|gue)\s+(ingin|mau|pengen)\s+(belajar|mempelajari)/.test(lower)) {
+  if (/^(i want|i wanna|i would like|want|wanna)\s+(to\s+)?(learn|study|understand|master)/.test(lower)) {
     return "learn-topic"
   }
 
-  if (/^(belajar|paham|faham|mengerti|ngerti)\b/.test(lower)) {
+  if (/^(learn|understand|got it|i see|i understand|i get it)\b/.test(lower)) {
     return "learn-topic"
   }
 
-  if (/^baik(|lah|,\s*saya\s+faham|\s*saya\s+mengerti)/.test(lower)) {
+  if (/^(ok|okay|alright|got it|understood|i understand|i see)\b/.test(lower)) {
     return "achievement"
   }
 
-  if (/^(saya|aku)\s+(berhasil|sudah|selesai)/.test(lower)) {
+  if (/^(i|we)\s+(finished|completed|succeeded|done|managed|successfully)/.test(lower)) {
     return "achievement"
   }
 
-  if (/^(lanjut|siap|ayo)\b/.test(lower)) {
+  if (/^(continue|resume|ready|next|let's go|proceed)\b/.test(lower)) {
     return "resume"
   }
 
-  if (/^(apakah|haruskah|perlukah)\b/.test(lower)) {
+  if (/^(should|must|do i need|is it necessary)\b/.test(lower)) {
     return "question-roadmap"
   }
 
-  if (/^(bagaimana|cara|gimana)\b/.test(lower)) {
+  if (/^(how|what is|explain|why|when)\b/.test(lower)) {
     return "question-prerequisite"
   }
 
-  if (/\bselesai|selesaiin|kerjakan\b/.test(lower)) {
+  if (/\b(finish|complete|done|task|job)\b/.test(lower)) {
     return "complete-task"
   }
 
-  if (/^(progress|sejauh\s+mana|status)\b/.test(lower)) {
+  if (/^(progress|status|how far|dashboard)\b/.test(lower)) {
     return "status-check"
   }
 
@@ -47,47 +47,47 @@ export function detectIntent(message: string): CoachIntent {
 }
 
 export function onboardingMessage(): string {
-  return `Halo! Saya mentor CodingSchool.
+  return `Hi! I'm your CodingSchool mentor.
 
-Saya akan membantu kamu belajar software engineering dengan cara yang benar — bukan sekadar menghasilkan kode.
+I will help you learn software engineering the right way — not just generate code.
 
-Ceritakan goal belajar atau topik yang ingin kamu pelajari.
-Saya akan buat learning plan yang sesuai untukmu.`
+Tell me your learning goal or the topic you want to study.
+I will create a learning plan tailored for you.`
 }
 
 export function choicePrompt(): string {
-  return `Apakah kamu ingin:
+  return `What would you like to do:
 
-A. Menyelesaikan pekerjaan
+A. Complete the task
 
-atau
+or
 
-B. Belajar membangun kemampuan?`
+B. Build your skills?`
 }
 
 export function contextEstimation(topic: string): string {
-  return `Saya akan menjadi mentor Anda.
+  return `I will be your mentor.
 
-Topik:
+Topic:
 ✔ ${topic}
 
-Estimasi kebutuhan konteks:
+Estimated context needed:
 
   Beginner    ≈ 25k context
   Intermediate ≈ 80k context
   Expert      ≈ 250k context
 
-Pilih level untuk memulai.`
+Pick a level to start.`
 }
 
 export function bloomStagePrompt(stage: BloomStage, topic: string): string {
   const prompts: Record<BloomStage, string> = {
-    remember: `Apa yang kamu pahami tentang ${topic}?`,
-    understand: `Mengapa ${topic} digunakan? Jelaskan dengan kata-katamu sendiri.`,
-    apply: `Implementasikan ${topic} dalam kode.`,
-    analyze: `Apa kelemahan atau keterbatasan dari ${topic}?`,
-    evaluate: `Bandingkan ${topic} dengan pendekatan alternatif. Mana yang lebih baik dan mengapa?`,
-    create: `Bangun sebuah aplikasi sederhana yang menggunakan ${topic}.`,
+    remember: `What do you understand about ${topic}?`,
+    understand: `Why is ${topic} used? Explain in your own words.`,
+    apply: `Implement ${topic} in code.`,
+    analyze: `What are the limitations or trade-offs of ${topic}?`,
+    evaluate: `Compare ${topic} with alternative approaches. Which is better and why?`,
+    create: `Build a simple application that uses ${topic}.`,
   }
   return prompts[stage]
 }
@@ -96,9 +96,9 @@ export function prerequisiteGateMessage(
   askedTopic: string,
   missingTopic: string,
 ): string {
-  return `Saya tidak akan menjelaskan ${askedTopic} sekarang.
+  return `I will not explain ${askedTopic} right now.
 
-Selesaikan **${missingTopic}** terlebih dahulu.
+Please complete **${missingTopic}** first.
 
-Karena ${askedTopic} akan lebih mudah dipahami setelah kamu menguasai ${missingTopic}.`
+Because ${askedTopic} will be much easier to understand after you master ${missingTopic}.`
 }

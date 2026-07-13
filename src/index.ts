@@ -16,7 +16,7 @@ export const CodingSchoolPlugin: Plugin = async ({ directory }) => {
   return {
     tool: {
       cs_coach_dialog: tool({
-        description: "Mulai dialog dengan coach CodingSchool. Panggil ketika user ingin belajar atau butuh bimbingan.",
+        description: "Start a dialog with the CodingSchool coach. Call when the user wants to learn or needs guidance.",
         args: {
           message: tool.schema.string(),
           choice: tool.schema.string().optional(),
@@ -34,12 +34,12 @@ export const CodingSchoolPlugin: Plugin = async ({ directory }) => {
           }
 
           const greeting = handleGreeting(ctx)
-          return greeting.message || "Ada yang bisa saya bantu untuk belajar hari ini?"
+          return greeting.message || "How can I help you learn today?"
         },
       }),
 
       cs_create_roadmap: tool({
-        description: "Buat roadmap pembelajaran baru untuk topik tertentu. Buat learning contract di .codingschool/roadmap/",
+        description: "Create a new learning roadmap for a specific topic. Creates a learning contract in .codingschool/roadmap/",
         args: {
           topic: tool.schema.string(),
           level: tool.schema.enum(["beginner", "intermediate", "expert"]),
@@ -50,12 +50,12 @@ export const CodingSchoolPlugin: Plugin = async ({ directory }) => {
             topic: args.topic,
             level: args.level,
           })
-          return `Learning plan berhasil dibuat di \`${path}\`\n\n${choicePrompt()}`
+          return `Learning plan created at \`${path}\`\n\n${choicePrompt()}`
         },
       }),
 
       cs_update_progress: tool({
-        description: "Update progress belajar user. Catat penyelesaian item di roadmap.",
+        description: "Update the user's learning progress. Mark items as completed in the roadmap.",
         args: {
           topic: tool.schema.string(),
           item: tool.schema.string(),
@@ -68,12 +68,12 @@ export const CodingSchoolPlugin: Plugin = async ({ directory }) => {
             item: args.item,
             status: args.status,
           })
-          return `Progress diupdate.\n\n${renderDashboard(progress)}`
+          return `Progress updated.\n\n${renderDashboard(progress)}`
         },
       }),
 
       cs_assess_quiz: tool({
-        description: "Berikan penilaian rubrik terhadap jawaban user di quiz atau sesi belajar.",
+        description: "Provide a rubric-based assessment of the user's answers in a quiz or learning session.",
         args: {
           answers: tool.schema.string(),
           topic: tool.schema.string(),
@@ -98,7 +98,7 @@ export const CodingSchoolPlugin: Plugin = async ({ directory }) => {
       }),
 
       cs_resume_session: tool({
-        description: "Load sesi belajar sebelumnya. Cek .codingschool/sessions/ untuk checkpoint terakhir.",
+        description: "Load the previous learning session. Check .codingschool/sessions/ for the last checkpoint.",
         args: {
           date: tool.schema.string().optional(),
         },
@@ -106,29 +106,29 @@ export const CodingSchoolPlugin: Plugin = async ({ directory }) => {
           if (args.date) {
             const result = resumeSession(projectDir)
             if (result.hasSession && result.session) {
-              return `Checkpoint sesi **${result.date}**:
-- Topik: ${result.session.topic}
+              return `Checkpoint session **${result.date}**:
+- Topic: ${result.session.topic}
 - Level: ${result.session.level}
 - Progress: ${result.session.progressPercent}%
-- Tahap: ${result.session.bloomStage}
-- Terakhir: ${result.session.lastActivity}
+- Stage: ${result.session.bloomStage}
+- Last activity: ${result.session.lastActivity}
 
-Lanjutkan dari sini?`
+Continue from here?`
             }
-            return `Tidak ada sesi untuk tanggal ${args.date}.`
+            return `No session found for date ${args.date}.`
           }
 
           const latest = getLatestSessionInfo(projectDir)
           if (latest) {
-            return `Checkpoint terakhir: sesi **${latest.date}**.
-- Topik: ${latest.data.topic}
+            return `Last checkpoint: session **${latest.date}**.
+- Topic: ${latest.data.topic}
 - Progress: ${latest.data.progressPercent}%
-- Tahap Bloom: ${latest.data.bloomStage}
+- Bloom Stage: ${latest.data.bloomStage}
 
-Lanjutkan belajar atau mulai topik baru?`
+Continue learning or start a new topic?`
           }
 
-          return "Belum ada sesi belajar sebelumnya. Mulai petualangan belajarmu sekarang!"
+          return "No previous learning sessions found. Start your learning journey now!"
         },
       }),
     },
@@ -140,5 +140,3 @@ Lanjutkan belajar atau mulai topik baru?`
     },
   }
 }
-
-

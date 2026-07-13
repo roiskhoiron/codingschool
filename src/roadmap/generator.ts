@@ -12,8 +12,8 @@ export interface CreateRoadmapOptions {
 const THEORY_TEMPLATES: Record<string, Record<string, string[]>> = {
   rust: {
     beginner: [
-      "Variabel & Mutability",
-      "Tipe Data (i32, f64, bool, char, String, &str, Vec, HashMap)",
+      "Variables & Mutability",
+      "Data Types (i32, f64, bool, char, String, &str, Vec, HashMap)",
       "Ownership & Borrowing",
       "Struct & Enum",
       "Pattern Matching",
@@ -37,7 +37,7 @@ const THEORY_TEMPLATES: Record<string, Record<string, string[]>> = {
   },
   dart: {
     beginner: [
-      "Variabel & Tipe Data",
+      "Variables & Data Types",
       "Control Flow (if, for, while, switch)",
       "Collections (List, Set, Map, Queue)",
       "Function & Named Parameters",
@@ -159,7 +159,7 @@ Status: 🟨 In Progress
 ---
 
 ## Target
-Mampu menggunakan dan memahami ${topic} secara ${level === "beginner" ? "dasar" : level === "intermediate" ? "menengah" : "lanjutan"}.
+Able to use and understand ${topic} at ${level} level.
 
 ---
 
