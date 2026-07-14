@@ -11,6 +11,10 @@
       "import": "./dist/index.js",
       "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./tui": {
+      "import": "./dist/tui.js",
+      "types": "./dist/tui.d.ts"
     }
   },
   "files": [
@@ -22,7 +26,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "bun build src/index.ts --outdir dist --external @opencode-ai/plugin --target node && tsc --emitDeclarationOnly --outDir dist",
+    "build": "bun build src/index.ts src/tui.ts --outdir dist --external @opencode-ai/plugin --external @opentui/solid --target node && tsc --emitDeclarationOnly --outDir dist",
     "build:quick": "bun build src/index.ts --outdir dist --external @opencode-ai/plugin --target node",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
@@ -35,6 +39,8 @@
     "zod": "^3.22.0"
   },
   "devDependencies": {
+    "@opentui/core": "0.4.3",
+    "@opentui/solid": "0.4.3",
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
   },
