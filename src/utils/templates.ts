@@ -56,10 +56,11 @@ Ask the user what topic they want to learn or the goal they want to achieve.
 Use the "question" tool to ask, so they can type their answer or choose a suggestion.`
 }
 
-export function choicePrompt(): string {
-  return `Ask the user what they want to do. Use the "question" tool with options:
-- Complete the task
-- Build your skills`
+export function roadmapConfirmPrompt(): string {
+  return `You MUST now show the roadmap content to the user and ask for confirmation.
+Read the roadmap .md file that was just created, display it to the user, then use the "question" tool with options:
+- Setuju, lanjut belajar
+- Ada koreksi, regenerate roadmap`
 }
 
 export function contextEstimation(topic: string): string {

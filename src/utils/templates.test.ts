@@ -2,7 +2,7 @@ import { describe, it, expect } from "bun:test"
 import {
   detectIntent,
   onboardingMessage,
-  choicePrompt,
+  roadmapConfirmPrompt,
   contextEstimation,
   bloomStagePrompt,
   prerequisiteGateMessage,
@@ -79,12 +79,12 @@ describe("onboardingMessage", () => {
   })
 })
 
-describe("choicePrompt", () => {
-  it("instructs model to use question tool", () => {
-    const prompt = choicePrompt()
+describe("roadmapConfirmPrompt", () => {
+  it("instructs model to show roadmap and ask confirmation", () => {
+    const prompt = roadmapConfirmPrompt()
     expect(prompt).toContain("question")
-    expect(prompt).toContain("Complete the task")
-    expect(prompt).toContain("Build your skills")
+    expect(prompt).toContain("Setuju, lanjut belajar")
+    expect(prompt).toContain("Ada koreksi, regenerate roadmap")
   })
 })
 

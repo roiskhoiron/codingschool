@@ -12,7 +12,7 @@ import {
   handleStatusCheck,
   processCoachingChoice,
 } from "./coach"
-import { detectIntent, onboardingMessage, choicePrompt } from "./utils/templates"
+import { detectIntent, onboardingMessage, roadmapConfirmPrompt } from "./utils/templates"
 import { createRoadmap } from "./roadmap/generator"
 import { getProgress, updateProgress, renderDashboard } from "./progress/tracker"
 import { assessQuiz, renderAssessment, saveAssessment } from "./assessment/engine"
@@ -118,7 +118,7 @@ const CodingSchoolPlugin: Plugin = async ({ directory }) => {
             topic: args.topic,
             level: args.level,
           })
-          return `Learning plan created at \`${path}\`\n\n${choicePrompt()}`
+          return `Learning plan created at \`${path}\`\n\n${roadmapConfirmPrompt()}`
         },
       }),
 
@@ -256,7 +256,12 @@ CRITICAL RULES:
      NO npm install, bun install, brew install, apt install, pip install
      NO curl, wget, ssh, scp, docker, kubectl, terraform
    - If the user asks you to run a state-changing command, tell them the command and ask them to run it themselves.
-   - If a learning exercise requires creating files, guide the user step-by-step on what to create.`
+   - If a learning exercise requires creating files, guide the user step-by-step on what to create.
+7. After cs_create_roadmap succeeds, you MUST:
+   a. Read the roadmap .md file that was just created
+   b. Show the full roadmap content to the user
+   c. Use the "question" tool: "Setuju, lanjut belajar" / "Ada koreksi, regenerate roadmap"
+   d. If user chooses koreksi, ask what needs to be changed, then call cs_create_roadmap again with the updated requirements.`
 
 export default {
   id: "coding-school",
