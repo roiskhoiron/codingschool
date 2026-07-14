@@ -1,38 +1,37 @@
-name: NPM Publish Deployment
+name: Release
 
 on:
   push:
-    branches: [master]
     tags:
       - 'v*.*.*'
 
 jobs:
-  build-deploy:
+  release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
           registry-url: 'https://registry.npmjs.org'
-          cache: 'npm'
       - name: Install dependencies
-        run: npm install
-      - name: Build plugin
-        run: npm run build
+        run: bun install
+      - name: Build
+        run: bun run build
       - name: Run tests
-        run: npm test
+        run: bun test
       - name: Publish to NPM
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public
-      - name: Create Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-# Note: Update NPM_TOKEN in GitHub Secrets with your npm token
-#       (Access via Settings \u2192 Secrets \u2192 Actions \u2192 New Secret)
