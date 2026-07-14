@@ -29,3 +29,14 @@ export function writeMarkdown(filePath: string, content: string): void {
 export function isFileExists(filePath: string): boolean {
   return existsSync(filePath)
 }
+
+export function updateChecklistInFile(filePath: string, itemName: string): boolean {
+  if (!existsSync(filePath)) return false
+  const content = readFileSync(filePath, "utf-8")
+  const escapedItem = itemName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  const regex = new RegExp(`^(- \\[ \\] )(${escapedItem})$`, "m")
+  if (!regex.test(content)) return false
+  const updated = content.replace(regex, `- [x] ${itemName}`)
+  writeFileSync(filePath, updated, "utf-8")
+  return true
+}

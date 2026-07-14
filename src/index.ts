@@ -18,6 +18,8 @@ import { getProgress, updateProgress, renderDashboard } from "./progress/tracker
 import { assessQuiz, renderAssessment, saveAssessment } from "./assessment/engine"
 import { resumeSession, createOrUpdateSession, getLatestSessionInfo } from "./session/resume"
 import { isProfileExists } from "./utils/paths"
+import { updateChecklistInFile } from "./utils/fs"
+import { existsSync, readdirSync } from "fs"
 
 import { progressPath } from "./utils/paths"
 import type { ProgressData } from "./utils/types"
@@ -148,6 +150,15 @@ const CodingSchoolPlugin: Plugin = async ({ directory }) => {
             item: args.item,
             status: args.status,
           })
+          if (args.status === "done") {
+            const roadmapDir = join(projectDir, ".codingschool", "roadmap", args.topic.toLowerCase())
+            if (existsSync(roadmapDir)) {
+              const files = readdirSync(roadmapDir).filter(f => f.endsWith(".md"))
+              for (const file of files) {
+                updateChecklistInFile(join(roadmapDir, file), args.item)
+              }
+            }
+          }
           return `Progress updated.\n\n${renderDashboard(progress)}`
         },
       }),
