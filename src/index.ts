@@ -18,7 +18,7 @@ import { getProgress, updateProgress, renderDashboard } from "./progress/tracker
 import { assessQuiz, renderAssessment, saveAssessment } from "./assessment/engine"
 import { resumeSession, createOrUpdateSession, getLatestSessionInfo } from "./session/resume"
 import { isProfileExists } from "./utils/paths"
-import { ensureDir, readJson, writeJson } from "./utils/fs"
+
 import { progressPath } from "./utils/paths"
 import type { ProgressData } from "./utils/types"
 
@@ -216,14 +216,8 @@ Continue learning or start a new topic?`
       config.agent["coding-school"].permission = perm
     },
 
-    event: async ({ event }) => {
-      if (event.type === "session.created") {
-        ensureDir(join(projectDir, ".codingschool", "sessions"))
-        ensureDir(join(projectDir, ".codingschool", "roadmap"))
-        ensureDir(join(projectDir, ".codingschool", "quizzes"))
-        ensureDir(join(projectDir, ".codingschool", "reports"))
-        ensureDir(join(projectDir, ".codingschool", "certificates"))
-      }
+    event: async () => {
+      // no-op — .codingschool/ dirs created lazily by tools
     },
 
     "permission.ask": async (input, output) => {
