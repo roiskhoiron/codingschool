@@ -1,11 +1,86 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test"
-import { mkdtempSync, rmSync, existsSync, mkdirSync } from "fs"
+import { mkdtempSync, rmSync, existsSync } from "fs"
 import { join } from "path"
 import { tmpdir } from "os"
 
-import { generateLearningContract, createRoadmap } from "./generator"
+import { createRoadmap } from "./generator"
 
 let tmpDir: string
+
+const SAMPLE_CONTENT = `# Rust — Beginner
+
+Status: 🟨 In Progress
+
+---
+
+## Target
+Able to use and understand Rust at beginner level.
+
+---
+
+## Theory
+- [ ] Variables & Mutability
+- [ ] Data Types
+- [ ] Ownership & Borrowing
+
+---
+
+## Practice
+- [ ] Hello World
+- [ ] Calculator
+
+---
+
+## Quiz
+- [ ] Quiz 1 — Rust fundamentals
+
+---
+
+## Final Project
+- [ ] CLI Tool
+
+---
+
+Progress: 0%
+`
+
+const SAMPLE_CONTENT_EXPERT = `# Rust — Expert
+
+Status: 🟨 In Progress
+
+---
+
+## Target
+Able to use and understand Rust at expert level.
+
+---
+
+## Theory
+- [ ] Unsafe Rust
+- [ ] FFI
+- [ ] Macros
+- [ ] Async/Await internals
+
+---
+
+## Practice
+- [ ] Custom Allocator
+- [ ] Parser Library
+
+---
+
+## Quiz
+- [ ] Quiz 1 — Advanced Rust
+
+---
+
+## Final Project
+- [ ] Runtime Implementation
+
+---
+
+Progress: 0%
+`
 
 beforeEach(() => {
   tmpDir = mkdtempSync(join(tmpdir(), "codingschool-test-"))
@@ -15,57 +90,52 @@ afterEach(() => {
   rmSync(tmpDir, { recursive: true, force: true })
 })
 
-describe("generateLearningContract", () => {
-  it("contains topic and level in title", () => {
-    const contract = generateLearningContract({ topic: "Rust", level: "beginner" })
-    expect(contract).toContain("Rust")
-    expect(contract).toContain("Beginner")
-  })
-
-  it("contains Theory section", () => {
-    const contract = generateLearningContract({ topic: "Rust", level: "beginner" })
-    expect(contract).toContain("## Theory")
-  })
-
-  it("contains Practice section", () => {
-    const contract = generateLearningContract({ topic: "Rust", level: "beginner" })
-    expect(contract).toContain("## Practice")
-  })
-
-  it("contains Quiz section", () => {
-    const contract = generateLearningContract({ topic: "Rust", level: "beginner" })
-    expect(contract).toContain("## Quiz")
-  })
-
-  it("contains Final Project section", () => {
-    const contract = generateLearningContract({ topic: "Rust", level: "beginner" })
-    expect(contract).toContain("## Final Project")
-  })
-
-  it("has different content for different levels", () => {
-    const beginner = generateLearningContract({ topic: "Rust", level: "beginner" })
-    const expert = generateLearningContract({ topic: "Rust", level: "expert" })
-    expect(beginner).not.toBe(expert)
-  })
-})
-
 describe("createRoadmap", () => {
-  it("writes a markdown file", () => {
-    const path = createRoadmap({ projectDir: tmpDir, topic: "Go", level: "intermediate" })
+  it("writes a markdown file with provided content", () => {
+    const path = createRoadmap({ projectDir: tmpDir, topic: "Rust", level: "beginner", content: SAMPLE_CONTENT })
     expect(existsSync(path)).toBe(true)
-    expect(path).toContain("intermediate.md")
+    expect(path).toContain("beginner.md")
   })
 
   it("creates progress.json entry", () => {
-    createRoadmap({ projectDir: tmpDir, topic: "Go", level: "intermediate" })
+    createRoadmap({ projectDir: tmpDir, topic: "Rust", level: "beginner", content: SAMPLE_CONTENT })
     const progressPath = join(tmpDir, ".codingschool", "progress.json")
     expect(existsSync(progressPath)).toBe(true)
   })
 
   it("initializes progress at 0%", () => {
-    createRoadmap({ projectDir: tmpDir, topic: "Go", level: "intermediate" })
+    createRoadmap({ projectDir: tmpDir, topic: "Rust", level: "beginner", content: SAMPLE_CONTENT })
     const { readFileSync } = require("fs")
     const progress = JSON.parse(readFileSync(join(tmpDir, ".codingschool", "progress.json"), "utf-8"))
-    expect(progress.topics.Go.percent).toBe(0)
+    expect(progress.topics.Rust.percent).toBe(0)
+  })
+
+  it("extracts theory items from content", () => {
+    createRoadmap({ projectDir: tmpDir, topic: "Rust", level: "beginner", content: SAMPLE_CONTENT })
+    const { readFileSync } = require("fs")
+    const progress = JSON.parse(readFileSync(join(tmpDir, ".codingschool", "progress.json"), "utf-8"))
+    expect(progress.topics.Rust.theory).toEqual(["Variables & Mutability", "Data Types", "Ownership & Borrowing"])
+  })
+
+  it("extracts practice items from content", () => {
+    createRoadmap({ projectDir: tmpDir, topic: "Rust", level: "beginner", content: SAMPLE_CONTENT })
+    const { readFileSync } = require("fs")
+    const progress = JSON.parse(readFileSync(join(tmpDir, ".codingschool", "progress.json"), "utf-8"))
+    expect(progress.topics.Rust.practice).toEqual(["Hello World", "Calculator"])
+  })
+
+  it("extracts quiz items from content", () => {
+    createRoadmap({ projectDir: tmpDir, topic: "Rust", level: "beginner", content: SAMPLE_CONTENT })
+    const { readFileSync } = require("fs")
+    const progress = JSON.parse(readFileSync(join(tmpDir, ".codingschool", "progress.json"), "utf-8"))
+    expect(progress.topics.Rust.quizzes).toContain("Quiz 1 — Rust fundamentals")
+  })
+
+  it("handles different content for different levels", () => {
+    createRoadmap({ projectDir: tmpDir, topic: "Rust", level: "beginner", content: SAMPLE_CONTENT })
+    createRoadmap({ projectDir: tmpDir, topic: "Rust", level: "expert", content: SAMPLE_CONTENT_EXPERT })
+    const { readFileSync } = require("fs")
+    const progress = JSON.parse(readFileSync(join(tmpDir, ".codingschool", "progress.json"), "utf-8"))
+    expect(progress.topics.Rust.theory).toHaveLength(3)
   })
 })

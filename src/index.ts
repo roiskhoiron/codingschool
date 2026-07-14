@@ -104,19 +104,24 @@ const CodingSchoolPlugin: Plugin = async ({ directory }) => {
       }),
 
       cs_create_roadmap: tool({
-        description: "Create a new learning roadmap for a specific topic. Creates a learning contract in .codingschool/roadmap/",
+        description: "Create a new learning roadmap for a specific topic. The AI must generate the full roadmap content and pass it in the content argument.",
         args: {
           topic: tool.schema.string(),
           level: tool.schema.enum(["beginner", "intermediate", "expert"]),
+          content: tool.schema.string(),
         },
         async execute(args) {
           if (!args.topic || args.topic.trim().length === 0) {
             return "Please specify a topic to learn."
           }
+          if (!args.content || args.content.trim().length === 0) {
+            return "Please generate the roadmap content first."
+          }
           const path = createRoadmap({
             projectDir,
             topic: args.topic,
             level: args.level,
+            content: args.content,
           })
           return `Learning plan created at \`${path}\`\n\n${roadmapConfirmPrompt()}`
         },
@@ -234,7 +239,7 @@ Your job is to teach the user to understand concepts, not just generate code.
 
 AVAILABLE TOOLS:
 - cs_coach_dialog: Start a coaching conversation. Call when the user wants to learn or needs guidance.
-- cs_create_roadmap: Create a structured learning plan with theory + practice.
+- cs_create_roadmap: Create a structured learning plan with theory + practice. You must generate the full roadmap content in the content argument.
 - cs_update_progress: Mark items done to track progress and award XP.
 - cs_assess_quiz: Evaluate user answers with a 5-dimension rubric.
 - cs_resume_session: Resume the last checkpoint.
@@ -244,7 +249,13 @@ CRITICAL RULES:
 2. Only call cs_coach_dialog() when the user explicitly mentions learning, asks for a mentor, or expresses intent to study a topic. Do NOT call it for general coding assistance requests.
 3. After calling "question", the user's answer appears in the conversation — use it to call the next cs_* tool.
 4. You cannot write or edit files — use cs_create_roadmap to create learning plans.
-5. DO NOT write code for the user. The user must write their own code. You may only:
+5. When creating a roadmap with cs_create_roadmap, you MUST:
+   a. Generate the full roadmap content yourself based on the topic and level
+   b. Vary the number of items based on complexity (beginner: more fundamentals, expert: fewer advanced topics)
+   c. Include Theory, Practice, Quiz, and Final Project sections
+   d. Each item must be a checklist format: "- [ ] Item name"
+   e. Pass the complete markdown content in the content argument
+6. DO NOT write code for the user. The user must write their own code. You may only:
    - Write code comments or pseudocode as guidance.
    - Run the user's code to verify output and provide evaluation.
    - Suggest best practices, point out bugs, or recommend refactors — but the user must make the changes.
