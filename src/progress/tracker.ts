@@ -42,11 +42,17 @@ export function updateProgress(options: UpdateProgressOptions): ProgressData {
 
   if (status === "done") {
     progress.xp += 50
-    if (tp.theory.includes(item) && !tp.completedTheory.includes(item)) {
+    if (tp.theory.includes(item)) {
+      if (!tp.completedTheory.includes(item)) {
+        tp.completedTheory.push(item)
+      }
+    } else if (tp.practice.includes(item)) {
+      if (!tp.completedPractice.includes(item)) {
+        tp.completedPractice.push(item)
+      }
+    } else {
+      tp.theory.push(item)
       tp.completedTheory.push(item)
-    }
-    if (tp.practice.includes(item) && !tp.completedPractice.includes(item)) {
-      tp.completedPractice.push(item)
     }
   }
 
