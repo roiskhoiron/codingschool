@@ -111,8 +111,14 @@ function parseMdRoadmap(content: string): {
       else if (inPractice) { practice++; if (checked) practiceDone++ }
     } else if (line.startsWith("Progress:")) {
       const m = line.match(/Progress:\s*(\d+)%/)
-      if (m) percent = parseInt(m[1], 10)
+      if (m && percent === 0) percent = parseInt(m[1], 10)
     }
+  }
+
+  const totalItems = theory + practice
+  const doneItems = theoryDone + practiceDone
+  if (totalItems > 0) {
+    percent = Math.round((doneItems / totalItems) * 100)
   }
 
   return { topic, level, percent, status, theory, theoryDone, practice, practiceDone }

@@ -324,7 +324,8 @@ CRITICAL RULES:
     d. After all batches answered, combine answers and call cs_assess_quiz
     e. Show summary: correct/wrong per question + score + feedback
     f. Update progress with cs_update_progress (status=done for quiz item)
-    g. NEVER output quiz questions as plain text — always use question tool`
+    g. NEVER output quiz questions as plain text — always use question tool
+    12. For progress checks (user asks progress, continue learning, resume): ONLY call cs_resume_session — NEVER call cs_coach_dialog. cs_coach_dialog is ONLY for initial intent detection.`
 
 export default {
   id: "coding-school",

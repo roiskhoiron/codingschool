@@ -2,11 +2,11 @@
 
 **Learn Software Engineering with AI, not From AI.**
 
-CodingSchool adalah OpenCode plugin yang berfungsi sebagai mentor pembelajaran software engineering. Fokusnya pada pemahaman konsep — bukan sekadar generasi kode otomatis.
+CodingSchool is an OpenCode plugin that acts as your personal software engineering mentor. It focuses on building real understanding — not just auto-generating code you don't comprehend.
 
 ## Installation
 
-Tambahkan ke `opencode.json`:
+Add to your `opencode.json`:
 
 ```jsonc
 {
@@ -14,37 +14,37 @@ Tambahkan ke `opencode.json`:
 }
 ```
 
-Plugin secara otomatis mendaftarkan agent `coding-school`, system prompt, dan permission tool — tidak perlu konfigurasi manual.
+The plugin automatically registers the `coding-school` agent, system prompt, and tool permissions — zero manual config needed.
 
 > Requires OpenCode v0.7+ (Plugin V2 API).
 
 ## How It Works
 
-1. Pilih agent **coding-school** di OpenCode
-2. Ceritakan topik yang ingin dipelajari
-3. Plugin membuat roadmap belajar di `.codingschool/roadmap/`
-4. Belajar melalui 6 tahap Bloom Taxonomy (Remember → Create)
-5. Progress tersimpan otomatis di `.codingschool/progress.json`
+1. Select the **coding-school** agent in OpenCode
+2. Tell it what topic you want to learn
+3. The plugin generates a learning roadmap in `.codingschool/roadmap/`
+4. Learn through 6 Bloom Taxonomy stages (Remember → Create)
+5. Progress is automatically tracked in `.codingschool/progress.json`
 
-**Prinsip utama**: Semua kode ditulis oleh student. Agent hanya membimbing, mengevaluasi, dan memberikan feedback — tidak mengeksekusi command yang memodifikasi state.
+**Core principle**: You write all the code. The agent guides, evaluates, and gives feedback — it never executes commands that modify your project state.
 
 ## Tools
 
-Plugin menyediakan 5 tools yang dapat dipanggil oleh agent:
+The plugin provides 5 tools that the agent can call:
 
-| Tool | Fungsi | Argumen |
-|------|--------|---------|
-| `cs_coach_dialog` | Mulai dialog dengan coach | `message`, `choice` (opsional) |
-| `cs_create_roadmap` | Buat learning contract `.md` di `.codingschool/roadmap/` | `topic`, `level` |
-| `cs_update_progress` | Update progress + XP + level | `topic`, `item`, `status` |
-| `cs_assess_quiz` | Evaluasi jawaban dengan rubrik Bloom | `answers`, `topic`, `stage` |
-| `cs_resume_session` | Load checkpoint sesi terakhir | `date` (opsional) |
+| Tool | Purpose | Arguments |
+|------|---------|-----------|
+| `cs_coach_dialog` | Start a conversation with the coach | `message`, `choice` (optional) |
+| `cs_create_roadmap` | Create a learning roadmap `.md` in `.codingschool/roadmap/` | `topic`, `level` |
+| `cs_update_progress` | Update progress, XP, and level | `topic`, `item`, `status` |
+| `cs_assess_quiz` | Evaluate answers using Bloom's rubric | `answers`, `topic`, `stage` |
+| `cs_resume_session` | Load the last checkpoint | `date` (optional) |
 
-Tools mengembalikan instruksi model (bukan teks langsung ke user) yang memicu agent untuk memanggil native `question` tool — menampilkan pilihan sebagai interactive button di TUI.
+Tools return model instructions (not direct text to the user) that trigger the agent to call the native `question` tool — displaying choices as interactive buttons in the TUI.
 
 ## TUI Sidebar
 
-Plugin menyertakan sidebar widget yang tampil otomatis di OpenCode TUI ketika folder `.codingschool/` terdeteksi:
+The plugin includes a sidebar widget that automatically appears in the OpenCode TUI when a `.codingschool/` folder is detected:
 
 ```
 ┌─ CodingSchool ──────────┐
@@ -52,31 +52,31 @@ Plugin menyertakan sidebar widget yang tampil otomatis di OpenCode TUI ketika fo
 │ ████░░░░░░░░            │
 │ 0/1 topics done         │
 ├─ Git ───────────────────┤
-│ beginner  0%            │
-│ ░░░░░░░░░░░░            │
-│ T 0/5                   │
-│ P 0/2                   │
+│ beginner  45%           │
+│ ████░░░░░░░░            │
+│ T 3/5                   │
+│ P 1/2                   │
 └─────────────────────────┘
 ```
 
-Sidebar diperbarui otomatis setiap 2 detik tanpa perlu restart.
+The sidebar auto-refreshes every 2 seconds — no restart needed.
 
 ## Agent Behavior
 
-Agent **dilarang**:
-- Menulis atau mengedit file kode milik student
-- Mengeksekusi command yang memodifikasi state: `git init`, `git add`, `git commit`, `mkdir`, `rm`, `npm install`, `brew`, dll.
+The agent is **forbidden** from:
+- Writing or editing your source code files
+- Executing state-modifying commands: `git init`, `git add`, `git commit`, `mkdir`, `rm`, `npm install`, `brew`, etc.
 
-Agent **boleh**:
-- Menulis pseudocode atau komentar sebagai panduan
-- Menjalankan perintah read-only: `git log`, `git diff`, `git status`, `ls`
-- Menjalankan test/linter untuk evaluasi hasil kerja student
+The agent **may**:
+- Write pseudocode or comments as guidance
+- Run read-only commands: `git log`, `git diff`, `git status`, `ls`
+- Run tests/linters to evaluate your work
 
 ## Data Structure
 
 ```
 .codingschool/
-├── progress.json           # Progress per-topik + XP + level global
+├── progress.json           # Per-topic progress + global XP + level
 ├── roadmap/
 │   ├── git/
 │   │   └── beginner.md
@@ -92,16 +92,16 @@ Agent **boleh**:
 └── certificates/
 ```
 
-Semua direktori dibuat **secara lazy** — hanya terbentuk saat tool pertama kali digunakan.
+All directories are created **lazily** — only when a tool first needs them.
 
 ## Development
 
 ```bash
 bun install          # Install dependencies
-bun test             # Run 66 tests
+bun test             # Run tests
 bun run typecheck    # TypeScript check
-bun run build        # Build ke dist/
-bun run build:quick  # Build tanpa declarations (lebih cepat)
+bun run build        # Build to dist/
+bun run build:quick  # Build without declarations (faster)
 ```
 
 ## License
