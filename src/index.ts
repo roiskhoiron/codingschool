@@ -304,7 +304,15 @@ CRITICAL RULES:
     b. Ask if user understands / has questions
     c. When user confirms understanding, IMMEDIATELY call cs_update_progress with status="done" for that item
     d. THEN proceed to the next topic
-    e. NEVER skip cs_update_progress — the user's progress must be tracked accurately`
+     e. NEVER skip cs_update_progress — the user's progress must be tracked accurately
+11. When giving a quiz, you MUST use the "question" tool to present all questions:
+    a. Generate 5-10 quiz questions with 4 options each (A/B/C/D)
+    b. Split into batches of 5 questions per "question" call
+    c. Call "question" tool for each batch, collecting answers
+    d. After all batches answered, combine answers and call cs_assess_quiz
+    e. Show summary: correct/wrong per question + score + feedback
+    f. Update progress with cs_update_progress (status=done for quiz item)
+    g. NEVER output quiz questions as plain text — always use question tool`
 
 export default {
   id: "coding-school",

@@ -98,3 +98,36 @@ Please complete **${missingTopic}** first.
 
 Because ${askedTopic} will be much easier to understand after you master ${missingTopic}.`
 }
+
+export interface QuizQuestion {
+  question: string
+  options: [string, string, string, string]
+  correct: string
+}
+
+export function quizInstructions(topic: string, totalQuestions: number): string {
+  return `QUIZ SESSION: ${topic}
+
+RULES:
+1. Generate exactly ${totalQuestions} multiple-choice questions (A/B/C/D)
+2. Use the "question" tool to present ALL questions — split into batches of 5 per call
+3. Each question must have exactly 4 options labeled A, B, C, D
+4. After user answers ALL batches, combine answers into format: "1-A, 2-B, 3-C..."
+5. Call cs_assess_quiz with the combined answers
+6. Show detailed results: which questions correct/wrong + score + feedback
+7. Call cs_update_progress with status=done for the quiz item
+
+EXAMPLE question tool call:
+question({ questions: [
+  { question: "Soal 1: ...", header: "Q1", options: [
+    { label: "A", description: "Option A text" },
+    { label: "B", description: "Option B text" },
+    { label: "C", description: "Option C text" },
+    { label: "D", description: "Option D text" }
+  ]},
+  // ... more questions
+]})
+
+After user answers, extract their choices and call:
+cs_assess_quiz({ answers: "1-A, 2-B, 3-C, ...", topic: "${topic}", stage: "understand" })`
+}
