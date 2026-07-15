@@ -86,8 +86,7 @@ function parseMdRoadmap(content: string): {
   let level = ""
   let percent = 0
   let status = "not-started"
-  let inTheory = false
-  let inPractice = false
+  let inQuizOrFinal = false
   let theory = 0, theoryDone = 0
   let practice = 0, practiceDone = 0
 
@@ -96,27 +95,29 @@ function parseMdRoadmap(content: string): {
       const parts = line.replace(/^#\s+/, "").split("—").map(s => s.trim())
       topic = parts[0] || ""
       level = parts[1] || ""
-    } else if (line.startsWith("## Theory")) {
-      inTheory = true; inPractice = false
-    } else if (line.startsWith("## Practice")) {
-      inTheory = false; inPractice = true
     } else if (line.startsWith("## ")) {
-      inTheory = false; inPractice = false
+      const sectionTitle = line.replace(/^##\s+/, "").toLowerCase()
+      inQuizOrFinal = sectionTitle.includes("quiz") || sectionTitle.includes("final project") || sectionTitle.includes("key takeaway")
     } else if (line.startsWith("Status:")) {
       if (line.includes("Completed") || line.includes("✅")) status = "completed"
       else if (line.includes("In Progress") || line.includes("🟨")) status = "in-progress"
     } else if (line.match(/^\s*-\s+\[([ x])\]/)) {
       const checked = line.match(/^\s*-\s+\[([ x])\]/)![1] === "x"
-      if (inTheory) { theory++; if (checked) theoryDone++ }
-      else if (inPractice) { practice++; if (checked) practiceDone++ }
+      if (inQuizOrFinal) {
+        if (checked) theoryDone++
+        theory++
+      } else {
+        if (checked) theoryDone++
+        theory++
+      }
     } else if (line.startsWith("Progress:")) {
       const m = line.match(/Progress:\s*(\d+)%/)
       if (m && percent === 0) percent = parseInt(m[1], 10)
     }
   }
 
-  const totalItems = theory + practice
-  const doneItems = theoryDone + practiceDone
+  const totalItems = theory
+  const doneItems = theoryDone
   if (totalItems > 0) {
     percent = Math.round((doneItems / totalItems) * 100)
   }
