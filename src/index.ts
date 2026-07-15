@@ -191,7 +191,7 @@ const CodingSchoolPlugin: Plugin = async ({ directory }) => {
       }),
 
       cs_resume_session: tool({
-        description: "Load the previous learning session. Check .codingschool/sessions/ for the last checkpoint.",
+        description: "Load the previous learning session. Check .codingschool/sessions/ for the last checkpoint, or .codingschool/progress.json for existing progress.",
         args: {
           date: tool.schema.string().optional(),
         },
@@ -219,6 +219,18 @@ Continue from here?`
 - Bloom Stage: ${latest.data.bloomStage}
 
 Continue learning or start a new topic?`
+          }
+
+          const progress = getProgress(projectDir)
+          const topics = Object.entries(progress.topics)
+          if (topics.length > 0) {
+            const lines = topics.map(([name, t]) => {
+              const nextItem = [...t.theory, ...t.practice].find(
+                i => !t.completedTheory.includes(i) && !t.completedPractice.includes(i),
+              )
+              return `- **${name}**: ${t.percent}% complete${nextItem ? `\n  Next: ${nextItem}` : t.percent === 100 ? "\n  ✅ COMPLETED" : ""}`
+            })
+            return `Found existing progress in progress.json:\n${lines.join("\n")}\n\nXP: ${progress.xp} | Level: ${progress.level}\n\nContinue learning or start a new topic?`
           }
 
           return "No previous learning sessions found. Start your learning journey now!"
