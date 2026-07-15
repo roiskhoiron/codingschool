@@ -230,7 +230,8 @@ Continue learning or start a new topic?`
               )
               return `- **${name}**: ${t.percent}% complete${nextItem ? `\n  Next: ${nextItem}` : t.percent === 100 ? "\n  ✅ COMPLETED" : ""}`
             })
-            return `Found existing progress in progress.json:\n${lines.join("\n")}\n\nXP: ${progress.xp} | Level: ${progress.level}\n\nContinue learning or start a new topic?`
+            const topicKeys = topics.map(([name]) => name)
+            return `Found existing progress in progress.json:\n${lines.join("\n")}\n\nXP: ${progress.xp} | Level: ${progress.level}\n\nIMPORTANT: When calling cs_update_progress, use the EXACT topic key: "${topicKeys[0]}"\n\nContinue learning or start a new topic?`
           }
 
           return "No previous learning sessions found. Start your learning journey now!"
@@ -325,7 +326,8 @@ CRITICAL RULES:
     e. Show summary: correct/wrong per question + score + feedback
     f. Update progress with cs_update_progress (status=done for quiz item)
     g. NEVER output quiz questions as plain text — always use question tool
-    12. For progress checks (user asks progress, continue learning, resume): ONLY call cs_resume_session — NEVER call cs_coach_dialog. cs_coach_dialog is ONLY for initial intent detection.`
+    12. For progress checks (user asks progress, continue learning, resume): ONLY call cs_resume_session — NEVER call cs_coach_dialog. cs_coach_dialog is ONLY for initial intent detection.
+    13. When calling cs_update_progress, you MUST use the EXACT topic key shown in cs_resume_session output (e.g. "Java Backend Development with Spring Boot") — NEVER abbreviate or reword the topic name.`
 
 export default {
   id: "coding-school",
