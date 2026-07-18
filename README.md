@@ -1,8 +1,8 @@
 # CodingSchool
 
-**Learn Software Engineering with AI, not From AI.**
+**AI Engineering Mentor — dual-agent OpenCode plugin.**
 
-CodingSchool is an OpenCode plugin that acts as your personal software engineering mentor. It focuses on building real understanding — not just auto-generating code you don't comprehend.
+CodingSchool is an OpenCode plugin with two specialized agents: **Learn** (student diagnosis, scaffolding, competency tracking) and **Coach** (code review, architecture, GRC). It builds real understanding — not just auto-generated code you don't comprehend.
 
 ## Installation
 
@@ -14,82 +14,113 @@ Add to your `opencode.json`:
 }
 ```
 
-The plugin automatically registers the `coding-school` agent, system prompt, and tool permissions — zero manual config needed.
+The plugin automatically registers both agents, system prompts, and tool permissions — zero manual config needed.
 
 > Requires OpenCode v0.7+ (Plugin V2 API).
 
-## How It Works
+## Agents
 
-1. Select the **coding-school** agent in OpenCode
-2. Tell it what topic you want to learn
-3. The plugin generates a learning roadmap in `.codingschool/roadmap/`
-4. Learn through 6 Bloom Taxonomy stages (Remember → Create)
-5. Progress is automatically tracked in `.codingschool/progress.json`
+### Learn Agent (`learn`)
 
-**Core principle**: You write all the code. The agent guides, evaluates, and gives feedback — it never executes commands that modify your project state.
+Student-focused agent for structured learning:
+
+- **Diagnoses** your current level and misconceptions before teaching
+- **Scaffolds** learning with 5 levels: Socratic question → nudge → analogy → pseudocode → solution
+- **Tracks** per-topic competency across 4 dimensions: knowledge, implementation, debugging, teaching
+- **Persists** a global student model (`~/.config/opencode/codingschool/student-model.json`) across sessions
+- **Bilingual** content and misconception patterns (English + Indonesian)
+
+### Coach Agent (`coach`)
+
+Mentor-focused agent for project work:
+
+- **Reviews** code quality, error handling, type safety, console statements
+- **Assesses** architecture (monolithic patterns, failure handling, separation of concerns)
+- **Scans** GRC compliance: hardcoded secrets, SQL injection, XSS, eval usage, input validation
+- **Tracks** engineering competency across 8 dimensions: code quality, architecture, git process, testing, documentation, collaboration, GRC, risk assessment
+
+### Legacy Agent (`coding-school`)
+
+The original single agent. Redirects to the `learn` agent for backward compatibility.
 
 ## Tools
 
-The plugin provides 5 tools that the agent can call:
+### Learn Tools
 
 | Tool | Purpose | Arguments |
 |------|---------|-----------|
-| `cs_coach_dialog` | Start a conversation with the coach | `message`, `choice` (optional) |
-| `cs_create_roadmap` | Create a learning roadmap `.md` in `.codingschool/roadmap/` | `topic`, `level` |
+| `cs_diagnose_student` | Record student responses, detect misconceptions | `topic`, `response`, `questions` (optional) |
+| `cs_teach_concept` | Deliver scaffolded hints and solutions | `topic`, `studentAnswer` (optional), `hintLevel` (optional), `concept` (optional) |
+| `cs_update_competency` | Update per-topic competency scores | `topic`, `knowledge`, `implementation`, `debugging`, `teaching` |
+| `cs_reflect` | Session reflection and insight extraction | `topic`, `reflection`, `type` |
+| `cs_create_roadmap` | Create a learning roadmap | `topic`, `level`, `content` |
 | `cs_update_progress` | Update progress, XP, and level | `topic`, `item`, `status` |
 | `cs_assess_quiz` | Evaluate answers using Bloom's rubric | `answers`, `topic`, `stage` |
 | `cs_resume_session` | Load the last checkpoint | `date` (optional) |
 
-Tools return model instructions (not direct text to the user) that trigger the agent to call the native `question` tool — displaying choices as interactive buttons in the TUI.
+### Coach Tools
+
+| Tool | Purpose | Arguments |
+|------|---------|-----------|
+| `cs_code_review` | Review code quality and flag issues | `code`, `language` (optional) |
+| `cs_architecture_review` | Assess project architecture | `directory` |
+| `cs_grc_scan` | Scan for GRC compliance issues | `directory` (optional) |
+| `cs_mentoring_plan` | Generate a learning plan for a topic | `topic` |
+| `cs_engineering_status` | Display engineering competency summary | (none) |
+| `cs_coach_dialog` | Conversation with coach | `message`, `choice` (optional) |
 
 ## TUI Sidebar
 
-The plugin includes a sidebar widget that automatically appears in the OpenCode TUI when a `.codingschool/` folder is detected:
+The sidebar widget auto-refreshes when a `.codingschool/` folder is detected:
 
 ```
-┌─ CodingSchool ──────────┐
-│ Level 2  XP 450/3000    │
-│ ████░░░░░░░░            │
-│ 0/1 topics done         │
-├─ Git ───────────────────┤
-│ beginner  45%           │
-│ ████░░░░░░░░            │
-│ T 3/5                   │
-│ P 1/2                   │
-└─────────────────────────┘
+┌─ AI Mentor ─────────────────────┐
+│ 🌱 Beginner  Conf 45%           │
+│ Style: example-first            │
+│ Goal: Learn TypeScript          │
+│ 3 topics  1 active misconceptions│
+├─ Competency ────────────────────┤
+│ typescript  ★★★★☆  62/100      │
+│ testing     ★★☆☆☆  35/100      │
+├─ Engineering ───────────────────┤
+│ Code Quality    ★★★★☆          │
+│ Architecture    ★★★☆☆          │
+│ Testing         ★★☆☆☆          │
+│ Documentation   ★★★☆☆          │
+└─────────────────────────────────┘
 ```
 
-The sidebar auto-refreshes every 2 seconds — no restart needed.
+## Philosophy
 
-## Agent Behavior
+**Mentor optimizes long-term growth, not short-term task completion.**
 
-The agent is **forbidden** from:
-- Writing or editing your source code files
-- Executing state-modifying commands: `git init`, `git add`, `git commit`, `mkdir`, `rm`, `npm install`, `brew`, etc.
-
-The agent **may**:
-- Write pseudocode or comments as guidance
-- Run read-only commands: `git log`, `git diff`, `git status`, `ls`
-- Run tests/linters to evaluate your work
+- **Diagnosis-first**: understand the student before teaching
+- **Scaffolding**: always start with minimal hints, escalate only when stuck
+- **Mandatory reflection**: every session ends with structured reflection
+- **Backward-compatible**: old roadmaps, progress, and sessions still work
 
 ## Data Structure
 
 ```
 .codingschool/
-├── progress.json           # Per-topic progress + global XP + level
+├── competency.json          # Per-topic competency (knowledge/implementation/debugging/teaching)
+├── engineering.json         # Engineering competency (8 dimensions)
+├── progress.json            # Legacy XP + level
 ├── roadmap/
 │   ├── git/
 │   │   └── beginner.md
-│   ├── dart/
-│   │   ├── beginner.md
-│   │   └── intermediate.md
-│   └── flutter/
+│   └── typescript/
+│       ├── beginner.md
+│       └── intermediate.md
 ├── sessions/
 │   ├── 2026-07-13.md
 │   └── 2026-07-14.md
 ├── quizzes/
 ├── reports/
 └── certificates/
+
+~/.config/opencode/codingschool/
+└── student-model.json       # Global student model (cross-project)
 ```
 
 All directories are created **lazily** — only when a tool first needs them.
@@ -98,7 +129,7 @@ All directories are created **lazily** — only when a tool first needs them.
 
 ```bash
 bun install          # Install dependencies
-bun test             # Run tests
+bun test             # Run tests (184 tests)
 bun run typecheck    # TypeScript check
 bun run build        # Build to dist/
 bun run build:quick  # Build without declarations (faster)

@@ -1,7 +1,7 @@
 {
   "name": "@codingskuy/coding-school",
-  "version": "1.0.4",
-  "description": "CodingSchool — Learn Software Engineering with AI, not From AI. OpenCode plugin mentor.",
+  "version": "2.0.0",
+  "description": "CodingSchool — Dual-agent AI Engineering Mentor plugin for OpenCode. Learn agent (student diagnosis, scaffolding, competency tracking) + Coach agent (code review, architecture, GRC).",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -35,8 +35,7 @@
   },
   "dependencies": {
     "@opencode-ai/plugin": "^1.0.0",
-    "date-fns": "^3.0.0",
-    "zod": "^3.22.0"
+    "date-fns": "^3.0.0"
   },
   "devDependencies": {
     "@opentui/core": "0.4.3",
@@ -50,7 +49,10 @@
     "coding-school",
     "mentor",
     "learning",
-    "tutorial"
+    "tutorial",
+    "engineering",
+    "competency",
+    "grc"
   ],
   "license": "MIT",
   "repository": {
