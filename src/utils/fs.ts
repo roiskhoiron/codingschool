@@ -33,10 +33,27 @@ export function isFileExists(filePath: string): boolean {
 export function updateChecklistInFile(filePath: string, itemName: string): boolean {
   if (!existsSync(filePath)) return false
   const content = readFileSync(filePath, "utf-8")
-  const escapedItem = itemName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-  const regex = new RegExp(`^(- \\[ \\] )(${escapedItem})$`, "m")
-  if (!regex.test(content)) return false
-  const updated = content.replace(regex, `- [x] ${itemName}`)
-  writeFileSync(filePath, updated, "utf-8")
+  const lines = content.split("\n")
+  let matched = false
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    const match = line.match(/^(- \[ \] )(.+)/)
+    if (match) {
+      const checkboxText = match[2]
+      if (
+        checkboxText.toLowerCase() === itemName.toLowerCase() ||
+        checkboxText.toLowerCase().includes(itemName.toLowerCase()) ||
+        itemName.toLowerCase().includes(checkboxText.toLowerCase())
+      ) {
+        lines[i] = `- [x] ${checkboxText}`
+        matched = true
+        break
+      }
+    }
+  }
+
+  if (!matched) return false
+  writeFileSync(filePath, lines.join("\n"), "utf-8")
   return true
 }
