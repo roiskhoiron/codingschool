@@ -44,18 +44,6 @@ export interface SessionData {
   lastActivity: string
 }
 
-export interface RoadmapContract {
-  topic: string
-  level: string
-  status: "not-started" | "in-progress" | "completed"
-  target: string
-  theory: string[]
-  practice: string[]
-  quizzes: string[]
-  finalProject: string
-  progressPercent: number
-}
-
 export type CoachChoice = "A" | "B"
 
 export type CoachIntent =
@@ -79,3 +67,104 @@ export interface AssessmentRubric {
   weakness: string
   feedback: string
 }
+
+// ──────────────────────────────────────────────
+// v2.0 — AI Engineering Mentor Enhancement
+// ──────────────────────────────────────────────
+
+export type LearningLevel = "beginner" | "foundation" | "intermediate" | "advanced" | "expert"
+
+export type ExplanationStyle = "analogy-first" | "code-first" | "concept-first" | "example-first"
+
+export type HelpSeekingBehavior = "independent" | "asks-often" | "never-asks"
+
+export interface CompetencyScores {
+  knowledge: number
+  implementation: number
+  debugging: number
+  teaching: number
+}
+
+export interface KnowledgeNode {
+  topic: string
+  level: LearningLevel
+  confidence: number
+  lastAssessed: string
+  competency: CompetencyScores
+  bloomStage: BloomStage
+  misconceptionNotes: string[]
+  practiceCount: number
+  lastPracticed: string
+}
+
+export interface Misconception {
+  topic: string
+  description: string
+  severity?: "critical" | "warning" | "info"
+  detectedAt: string
+  resolved: boolean
+  resolvedAt?: string
+}
+
+export interface SessionSummary {
+  date: string
+  topic: string
+  duration: number
+  bloomStageReached: BloomStage
+  competencyDelta: Partial<CompetencyScores>
+  reflectionNotes: string[]
+}
+
+export interface StudentModel {
+  name?: string
+  createdAt: string
+  lastActiveAt: string
+  currentLevel: LearningLevel
+  confidence: number
+  learningGoal: string
+  preferredStyle: ExplanationStyle
+  knowledge: Record<string, KnowledgeNode>
+  patterns: {
+    avgSessionLength: number
+    preferredTimeOfDay: string
+    helpSeekingBehavior: HelpSeekingBehavior
+    frustrationSignals: number
+    curiositySignals: number
+  }
+  sessions: SessionSummary[]
+  misconceptions: Misconception[]
+  strengths: string[]
+  weakAreas: string[]
+}
+
+export interface CompetencyData {
+  topics: Record<string, CompetencyScores>
+}
+
+export interface EngineeringCompetency {
+  codeQuality: number
+  architectureThinking: number
+  gitProcess: number
+  testingMindset: number
+  documentation: number
+  collaboration: number
+  grcAwareness: number
+  riskAssessment: number
+}
+
+export type CompetencyDimension = keyof CompetencyScores
+
+export type CoachState =
+  | "idle"
+  | "diagnose"
+  | "onboarding"
+  | "adapt"
+  | "teach"
+  | "practice"
+  | "scaffold"
+  | "assess"
+  | "reflect"
+  | "remediate"
+  | "advance"
+
+export type CoachMode = "learn" | "coach"
