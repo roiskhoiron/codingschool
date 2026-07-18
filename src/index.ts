@@ -19,7 +19,7 @@ import {
   handleProjectMentoring,
 } from "./coach"
 import { detectIntent, onboardingMessage, roadmapConfirmPrompt } from "./utils/templates"
-import { createRoadmap } from "./roadmap/generator"
+import { createRoadmap, listRoadmapItems } from "./roadmap/generator"
 import { getProgress, updateProgress, renderDashboard } from "./progress/tracker"
 import { assessQuiz, renderAssessment, saveAssessment } from "./assessment/engine"
 import { resumeSession, createOrUpdateSession, getLatestSessionInfo } from "./session/resume"
@@ -257,6 +257,37 @@ Continue learning or start a new topic?`
           }
 
           return "No previous learning sessions found. Start your learning journey now!"
+        },
+      }),
+
+      cs_list_roadmap_items: tool({
+        description: "List all items in a topic's roadmap with their checkbox status. Use this to find the exact item name before calling cs_update_progress.",
+        args: {
+          topic: tool.schema.string(),
+        },
+        async execute(args) {
+          const items = listRoadmapItems(projectDir, args.topic)
+          if (items.length === 0) {
+            return `No roadmap found for topic "${args.topic}". Create a roadmap first with cs_create_roadmap.`
+          }
+
+          let currentSection = ""
+          const lines: string[] = []
+          for (const item of items) {
+            if (item.section !== currentSection) {
+              lines.push(`\n## ${item.section}`)
+              currentSection = item.section
+            }
+            const status = item.checked ? "x" : " "
+            lines.push(`- [${status}] ${item.text}`)
+          }
+
+          const unchecked = items.filter(i => !i.checked)
+          const checked = items.filter(i => i.checked)
+          const total = items.length
+          const pct = Math.round((checked.length / total) * 100)
+
+          return `## Roadmap: ${args.topic}\n${lines.join("\n")}\n\n---\nProgress: ${checked.length}/${total} (${pct}%)\n\nIMPORTANT: When calling cs_update_progress, use the EXACT item text shown above (case-insensitive match).`
         },
       }),
 
@@ -530,9 +561,23 @@ AVAILABLE TOOLS:
 - cs_reflect: Generate reflection prompts and process student reflections. Use at end of session or after challenges.
 - cs_coach_dialog: Legacy coaching dialog — only call if student explicitly asks for mentor/coaching mode.
 - cs_create_roadmap: Create a structured learning plan. Generate full content yourself.
+- cs_list_roadmap_items: List all items in a roadmap with checkbox status. Use BEFORE cs_update_progress to find exact item text.
 - cs_update_progress: Mark items done to track progress and award XP.
 - cs_assess_quiz: Evaluate answers with a 5-dimension rubric (recall, comprehension, application, analysis, creation).
 - cs_resume_session: Resume the last checkpoint.
+
+CHECKPOINT WORKFLOW (MANDATORY):
+After teaching ANY concept or completing ANY learning item, you MUST:
+1. Call cs_list_roadmap_items with the topic name to see all items and their exact text
+2. Find the item you just taught in the list
+3. Call cs_update_progress with the EXACT item text (case-insensitive match is OK)
+4. The .md file checkbox will be updated automatically
+
+Example:
+- You teach "Variables & Data Types"
+- Call cs_list_roadmap_items(topic="java programming")
+- Find "Variables & Data Types" in the output
+- Call cs_update_progress(topic="java programming", item="Variables & Data Types", status="done")
 
 DIAGNOSIS-FIRST WORKFLOW:
 1. When a student wants to learn a topic, call cs_diagnose_student FIRST
@@ -572,10 +617,10 @@ CRITICAL RULES:
 3. After cs_update_progress, output teaching material directly as text.
 4. You cannot write or edit files for the student. Guide them to write their own code.
 5. Shell commands are READ-ONLY only: git log/diff/status, ls, bun test, bun run.
-6. ALWAYS call cs_update_progress after teaching each topic item.
+6. CHECKPOINT MANDATORY: After teaching each concept, call cs_list_roadmap_items then cs_update_progress. This updates the .md file checkboxes.
 7. When giving a quiz, use the "question" tool for all questions, not plain text.
 8. For progress checks, use cs_resume_session, NOT cs_coach_dialog.
-9. When calling cs_update_progress, use the EXACT topic key from cs_resume_session output.
+9. When calling cs_update_progress, use the EXACT item text from cs_list_roadmap_items output.
 10. After cs_create_roadmap succeeds, read the file, show it, then use question tool for confirmation.`
 
 const COACH_SYSTEM_PROMPT = `You are Coach — a software engineering project mentor with GRC (Governance, Risk, Compliance) awareness.
